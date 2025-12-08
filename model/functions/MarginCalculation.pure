@@ -1,0 +1,53 @@
+import products::Base::*;
+
+Class functions::Margin::InitialMargin
+{
+  currency : Currency[1];
+  totalAmount : Float[1];
+  deltaMargin : Float[1];
+  vegaMargin : Float[1];
+  curvatureMargin : Float[1];
+}
+
+Class functions::Margin::VariationMargin
+{
+  currency : Currency[1];
+  amount : Float[1];
+}
+
+Class functions::Margin::RiskSensitivity
+{
+  riskType : String[1]; // Delta, Vega, Curvature
+  bucket : String[1];
+  amount : Float[1];
+}
+
+Enum functions::Margin::SIMMProductClass
+{
+  RatesFX,
+  Credit,
+  Equity,
+  Commodity
+}
+
+// SIMM Calculation Functions
+function functions::Margin::calculateInitialMargin(sensitivities: functions::Margin::RiskSensitivity[*]): functions::Margin::InitialMargin[1]
+{
+  // Placeholder: In a real implementation, this would aggregate sensitivities
+  // using ISDA SIMM correlation matrices and risk weights.
+  ^functions::Margin::InitialMargin(
+    currency = ^Currency(code='USD'), 
+    totalAmount = 1000000.0,
+    deltaMargin = 500000.0,
+    vegaMargin = 300000.0,
+    curvatureMargin = 200000.0
+  )
+}
+
+function functions::Margin::calculateVariationMargin(mtmValue: Float[1], collateralBalance: Float[1]): functions::Margin::VariationMargin[1]
+{
+  ^functions::Margin::VariationMargin(
+    currency = ^Currency(code='USD'),
+    amount = mtmValue - collateralBalance
+  )
+}

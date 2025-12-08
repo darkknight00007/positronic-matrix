@@ -1,0 +1,103 @@
+import products::Base::*;
+import products::Lifecycle::*;
+
+// Common CFTC Reporting Fields
+Class transforms::Reporting::CFTCReport
+{
+  // Transaction Identifiers
+  uti : String[1]; // Unique Transaction Identifier (formerly USI)
+  upi : String[1]; // Unique Product Identifier
+  
+  // Action Details
+  actionType : String[1]; // NEW, MOD, CORR, CANC, TERM
+  eventTimestamp : DateTime[1];
+  reportingTimestamp : DateTime[1];
+}
+
+// CFTC Part 43: Real-Time Public Reporting
+Class transforms::Reporting::Part43Report extends transforms::Reporting::CFTCReport
+{
+  // Public Dissemination Fields (Anonymized)
+  executionTimestamp : DateTime[1];
+  contractType : String[1]; // Swap, Option, Forward
+  assetClass : String[1]; // IR, CRED, EQ, FX, CO
+  
+  // Pricing
+  price : Float[1];
+  priceNotation : String[1]; // Percentage, Units, etc.
+  notionalAmount : Float[1]; // Rounded/Capped for public view
+  notionalCurrency : String[1];
+  
+  // Indicators
+  blockTradeIndicator : Boolean[1];
+  clearedIndicator : Boolean[1];
+  executionVenueType : String[1]; // SEF, DCM, OFF
+}
+
+// CFTC Part 45: Swap Data Recordkeeping
+Class transforms::Reporting::Part45Report extends transforms::Reporting::CFTCReport
+{
+  // Counterparty Data (Detailed)
+  reportingCounterpartyId : String[1]; // LEI
+  nonReportingCounterpartyId : String[1]; // LEI
+  
+  // Detailed Economics
+  effectiveDate : Date[1];
+  maturityDate : Date[1];
+  
+  clearingDco : String[0..1]; // If cleared
+  
+  // Collateral & Margin (Changes frequently)
+  collateralizationType : String[0..1]; // Fully, Partially, One-Way
+  
+  // Valuation
+  valuationAmount : Money[0..1];
+  valuationDateTime : DateTime[0..1];
+}
+
+function transforms::Reporting::generatePart43Report(trade: Product[1], executionTime: DateTime[1]): transforms::Reporting::Part43Report[1]
+{
+  ^transforms::Reporting::Part43Report(
+    uti = 'UTI-' + $trade.id,
+    upi = 'UPI-GENERIC-' + $trade.primaryAssetClass->toOne(),
+    actionType = 'NEW',
+    eventTimestamp = $executionTime,
+    reportingTimestamp = now(),
+    
+    executionTimestamp = $executionTime,
+    contractType = $trade.productType->toOne(),
+    assetClass = $trade.primaryAssetClass->toOne(),
+    
+    price = 0.0, // Placeholder needs logic extraction specific to product type
+    priceNotation = 'Price',
+    notionalAmount = 1000000.0, // Placeholder logic needed
+    notionalCurrency = 'USD',
+    
+    blockTradeIndicator = false,
+    clearedIndicator = false,
+    executionVenueType = 'OFF'
+  )
+}
+
+function transforms::Reporting::generatePart45Report(trade: Product[1], executionTime: DateTime[1]): transforms::Reporting::Part45Report[1]
+{
+  let parties = $trade.parties;
+  let buyer = $parties->at(0);
+  let seller = $parties->at(1);
+
+  ^transforms::Reporting::Part45Report(
+    uti = 'UTI-' + $trade.id,
+    upi = 'UPI-DETAILED-' + $trade.primaryAssetClass->toOne(),
+    actionType = 'NEW',
+    eventTimestamp = $executionTime,
+    reportingTimestamp = now(),
+    
+    reportingCounterpartyId = $buyer.id, // Logic to determine Reporting CP needed
+    nonReportingCounterpartyId = $seller.id,
+    
+    effectiveDate = %2023-01-01, // Extract from product specific fields
+    maturityDate = %2024-01-01,   // Extract from product specific fields
+    
+    collateralizationType = 'Uncollateralized'
+  )
+}

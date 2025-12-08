@@ -1,0 +1,45 @@
+Class products::Base::Product
+{
+  id : String[1];
+  primaryAssetClass : String[0..1];
+  productType : String[0..1];
+  parties : products::Base::Party[*];
+}
+
+Class products::Base::Party
+{
+  id : String[1];
+  name : String[1];
+}
+
+Class products::Base::Currency
+{
+  code : String[1];
+}
+
+Class products::Base::Money
+{
+  amount : Float[1];
+  currency : products::Base::Currency[1];
+}
+
+Class products::Base::Schedule
+{
+  startDate : Date[1];
+  endDate : Date[1];
+  frequency : String[0..1];
+}
+
+Class products::Base::Exercise
+{
+  style : String[1]; // American, European, Bermuda
+  expiryDate : Date[0..1];
+}
+
+Class products::Base::Leg
+{
+  payer : products::Base::Party[1];
+  receiver : products::Base::Party[1];
+  effectiveDate : Date[1];
+  terminationDate : Date[1];
+}

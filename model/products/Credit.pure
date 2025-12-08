@@ -1,0 +1,48 @@
+import products::Base::*;
+
+Class products::Credit::CreditDerivative extends Product
+{
+  protectionBuyer : Party[1];
+  protectionSeller : Party[1];
+  notional : Money[1];
+  effectiveDate : Date[1];
+  scheduledTerminationDate : Date[1];
+}
+
+Class products::Credit::CreditDefaultSwap extends CreditDerivative
+{
+  referenceInformation : products::Credit::ReferenceInformation[1];
+  coupon : Float[1]; // Spread or fixed coupon
+}
+
+Class products::Credit::ReferenceInformation
+{
+  // Abstract base or container
+}
+
+Class products::Credit::SingleNameReference extends ReferenceInformation
+{
+  entityName : String[1];
+  seniority : String[1];
+  tier : String[0..1];
+}
+
+Class products::Credit::IndexReference extends ReferenceInformation
+{
+  indexName : String[1];
+  series : Integer[1];
+  version : Integer[1];
+}
+
+Class products::Credit::BasketReference extends ReferenceInformation
+{
+  constituents : products::Credit::SingleNameReference[*];
+}
+
+Class products::Credit::CdsOption extends CreditDerivative
+{
+  underlyingCds : CreditDefaultSwap[1];
+  exercise : Exercise[1];
+  strikeSpread : Float[1];
+  premium : Money[1];
+}

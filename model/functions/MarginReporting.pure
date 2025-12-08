@@ -1,0 +1,35 @@
+import products::Base::*;
+import functions::Margin::*;
+
+Class functions::Reporting::MarginReport
+{
+  reportDate : Date[1];
+  initialMargin : InitialMargin[1];
+  variationMargin : VariationMargin[1];
+}
+
+Class functions::Reporting::ExposureReport
+{
+  counterparty : Party[1];
+  grossExposure : Money[1];
+  netExposure : Money[1];
+}
+
+Class functions::Reporting::RegulatoryMarginReport
+{
+  // Fields required for EMIR/UMR
+  regime : String[1]; // EMIR, CFTC, etc.
+  imPosted : Float[1];
+  imReceived : Float[1];
+  vmPosted : Float[1];
+  vmReceived : Float[1];
+}
+
+function functions::Reporting::generateMarginReport(im: InitialMargin[1], vm: VariationMargin[1]): functions::Reporting::MarginReport[1]
+{
+  ^functions::Reporting::MarginReport(
+    reportDate = %2023-01-01,
+    initialMargin = $im,
+    variationMargin = $vm
+  )
+}

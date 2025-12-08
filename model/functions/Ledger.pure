@@ -1,0 +1,43 @@
+import products::Base::*;
+import products::Lifecycle::*;
+
+Class functions::Ledger::LedgerEntry
+{
+  entryId : String[1];
+  entryDate : DateTime[1];
+  description : String[1];
+  debit : Money[0..1];
+  credit : Money[0..1];
+}
+
+Class functions::Ledger::TradeLedger
+{
+  trades : Product[*];
+  events : LifecycleEvent[*];
+}
+
+Class functions::Ledger::PositionLedger
+{
+  // Aggregated positions
+  productType : String[1];
+  quantity : Float[1];
+  averagePrice : Float[1];
+}
+
+Class functions::Ledger::CashLedger
+{
+  entries : functions::Ledger::LedgerEntry[*];
+  balance : Money[1];
+}
+
+Class functions::Ledger::CollateralLedger
+{
+  entries : functions::Ledger::LedgerEntry[*];
+  // Tracks posted vs received
+}
+
+function functions::Ledger::bookTrade(trade: Product[1], ledger: functions::Ledger::TradeLedger[1]): functions::Ledger::TradeLedger[1]
+{
+  // Logic to add trade to ledger
+   ^functions::Ledger::TradeLedger(trades = $ledger.trades->concatenate($trade), events=$ledger.events)
+}

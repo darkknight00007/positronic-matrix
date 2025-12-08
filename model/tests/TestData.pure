@@ -1,0 +1,68 @@
+import products::Base::*;
+import products::IRD::*;
+import products::FX::*;
+import products::Equity::*;
+import products::Repo::*;
+import functions::Margin::*;
+
+function tests::createSampleTrade(): Any[1]
+{
+  let usd = ^Currency(code='USD');
+  let eur = ^Currency(code='EUR');
+  
+  // Sample IRD: Inflation Swap
+  let inflationSwap = ^InflationSwap(
+    id = 'TRD-001',
+    primaryAssetClass = 'InterestRate',
+    productType = 'InflationSwap',
+    parties = [^Party(id='BANK-A', name='Bank A'), ^Party(id='CLIENT-B', name='Client B')],
+    fixedLeg = ^FixedRateLeg(
+       fixedRate = 0.02,
+       payer = ^Party(id='BANK-A', name='Bank A'),
+       receiver = ^Party(id='CLIENT-B', name='Client B'),
+       effectiveDate = %2023-01-01,
+       terminationDate = %2028-01-01,
+       calculationConfig = ^CalculationConfiguration(notional=^Money(amount=10000000.0, currency=$usd))
+    ),
+    inflationLeg = ^InflationLeg(
+       inflationIndex = 'US-CPI-U',
+       baseCPI = 250.0,
+       payer = ^Party(id='CLIENT-B', name='Client B'),
+       receiver = ^Party(id='BANK-A', name='Bank A'),
+       effectiveDate = %2023-01-01,
+       terminationDate = %2028-01-01,
+       calculationConfig = ^CalculationConfiguration(notional=^Money(amount=10000000.0, currency=$usd))
+    )
+  );
+
+  // Sample FX: Variance Swap
+  let fxVarSwap = ^FxVarianceSwap(
+    id = 'TRD-002',
+    primaryAssetClass = 'ForeignExchange',
+    productType = 'FxVarianceSwap',
+    parties = [^Party(id='BANK-A', name='Bank A'), ^Party(id='HEDGE-FUND-C', name='Hedge Fund C')],
+    varianceStrike = 0.04,
+    vegaNotional = ^Money(amount=50000.0, currency=$usd),
+    observationStartDate = %2023-02-01,
+    observationEndDate = %2023-08-01,
+    currencyPair = 'EUR/USD'
+  );
+  
+  // Sample Securities Financing: Tri-Party Repo
+  let triPartyRepo = ^TriPartyRepo(
+    id = 'TRD-003',
+    primaryAssetClass = 'Repo',
+    productType = 'TriPartyRepo',
+    parties = [^Party(id='DEALER-D', name='Dealer D'), ^Party(id='CASH-PROVIDER-E', name='Cash Provider E')],
+    buyer = ^Party(id='CASH-PROVIDER-E', name='Cash Provider E'), // Buyer of securities (cash provider)
+    seller = ^Party(id='DEALER-D', name='Dealer D'),
+    collateral = [^Collateral(security=^FixedRateBond(id='US-TREAS-10Y', issuer=^Party(id='US-GOVT', name='US Treasury'), faceValue=^Money(amount=100.0, currency=$usd), maturityDate=%2030-01-01, issueDate=%2020-01-01, couponFrequency='SemiAnnual'), quantity=1000000.0)],
+    purchaseDate = %2023-06-01,
+    repurchaseDate = %2023-06-08,
+    purchasePrice = ^Money(amount=98000000.0, currency=$usd),
+    repurchasePrice = ^Money(amount=98005000.0, currency=$usd),
+    repoRate = 0.05,
+    triPartyAgent = ^Party(id='CLEARING-BANK-F', name='Clearing Bank F'),
+    collateralProfile = 'US Treasuries only'
+  );
+}

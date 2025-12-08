@@ -1,0 +1,80 @@
+import products::Base::*;
+
+Class products::Equity::EquityDerivative extends Product
+{
+  underlying : products::Equity::EquityUnderlying[1];
+}
+
+Class products::Equity::EquityUnderlying
+{
+  instrumentId : String[1]; // ISIN, Ticker
+  description : String[0..1];
+  exchange : String[0..1];
+}
+
+Class products::Equity::EquityOption extends EquityDerivative
+{
+  buyer : Party[1];
+  seller : Party[1];
+  strikePrice : Money[1];
+  numberOfOptions : Float[1];
+  optionType : String[1]; // Put, Call
+  exercise : Exercise[1];
+  premium : Money[1];
+}
+
+Class products::Equity::EquityForward extends EquityDerivative
+{
+  buyer : Party[1];
+  seller : Party[1];
+  forwardPrice : Money[1];
+  forwardDate : Date[1];
+}
+
+Class products::Equity::EquitySwap extends EquityDerivative
+{
+  // A wrapper for legs, often an equity leg and a floating interest leg
+  equityLeg : products::Equity::EquityLeg[1];
+  fundingLeg : products::IRD::FloatingRateLeg[0..1]; // Referencing IRD floating leg if needed, or simple abstract
+}
+
+Class products::Equity::EquityLeg extends Leg
+{
+  returnType : String[1]; // TotalReturn, PriceReturn
+  notional : Money[1];
+}
+
+Class products::Equity::VarianceSwap extends EquityDerivative
+{
+  varianceStrike : Float[1];
+  vegaNotional : Money[1];
+  observationStartDate : Date[1];
+  observationEndDate : Date[1];
+}
+
+Class products::Equity::CorrelationSwap extends EquityDerivative
+{
+  correlationStrike : Float[1];
+  numberOfUnderlyings : Integer[1];
+}
+
+Class products::Equity::DividendSwap extends EquityDerivative
+{
+  dividendLeg : products::Equity::DividendLeg[1];
+  fixedLeg : products::IRD::FixedRateLeg[1];
+}
+
+Class products::Equity::DividendLeg extends Leg
+{
+  declaredDividend : Boolean[1]; // True if based on declared dividends
+  dividendPeriod : products::Base::Schedule[1];
+}
+
+Class products::Equity::VarianceOption extends EquityDerivative
+{
+  varianceSwap : products::Equity::VarianceSwap[1];
+  optionType : String[1]; // Put, Call
+  strikeVariance : Float[1];
+  premium : Money[1];
+  exercise : Exercise[1];
+}

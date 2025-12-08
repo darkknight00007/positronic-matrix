@@ -1,0 +1,45 @@
+import products::Base::*;
+
+Class products::Lifecycle::LifecycleEvent
+{
+  eventId : String[1];
+  eventDate : Date[1];
+  effectiveDate : Date[1];
+  tradeId : String[1];
+}
+
+Class products::Lifecycle::Execution extends LifecycleEvent
+{
+  executionVenue : String[0..1];
+}
+
+Class products::Lifecycle::Confirmation extends LifecycleEvent
+{
+  confirmationMethod : String[1]; // Electronic, Paper
+  status : String[1]; // Matched, Mismatched
+}
+
+Class products::Lifecycle::Settlement extends LifecycleEvent
+{
+  amount : Money[1];
+  payer : Party[1];
+  receiver : Party[1];
+}
+
+Class products::Lifecycle::Amendment extends LifecycleEvent
+{
+  description : String[1];
+}
+
+Class products::Lifecycle::Novation extends LifecycleEvent
+{
+  oldParty : Party[1];
+  newParty : Party[1];
+  novationDate : Date[1];
+}
+
+Class products::Lifecycle::Termination extends LifecycleEvent
+{
+  terminationDate : Date[1];
+  terminationPayment : Money[0..1];
+}

@@ -1,0 +1,51 @@
+import products::Base::*;
+
+Class products::Bond::BondProduct extends Product
+{
+  issuer : Party[1];
+  faceValue : Money[1];
+  couponRate : Float[0..1];
+  maturityDate : Date[1];
+  issueDate : Date[1];
+}
+
+Class products::Bond::FixedRateBond extends BondProduct
+{
+  couponFrequency : String[1]; // Annual, Semi-Annual, Quarterly
+}
+
+Class products::Bond::FloatingRateBond extends BondProduct
+{
+  floatingRateIndex : String[1];
+  spread : Float[0..1];
+  resetFrequency : String[1];
+}
+
+Class products::Bond::ZeroCouponBond extends BondProduct
+{
+  // No coupon, trades at discount
+  discountRate : Float[0..1];
+}
+
+Class products::Bond::ConvertibleBond extends BondProduct
+{
+  conversionRatio : Float[1];
+  conversionPrice : Money[1];
+  underlyingEquity : products::Equity::EquityUnderlying[1];
+}
+
+Class products::Bond::BondOption extends Product
+{
+  underlyingBond : BondProduct[1];
+  strikePrice : Money[1];
+  exercise : Exercise[1];
+  optionType : String[1]; // Put, Call
+  premium : Money[1];
+}
+
+Class products::Bond::BondForward extends Product
+{
+  underlyingBond : BondProduct[1];
+  forwardPrice : Money[1];
+  settlementDate : Date[1];
+}

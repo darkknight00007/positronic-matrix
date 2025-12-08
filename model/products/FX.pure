@@ -1,0 +1,75 @@
+import products::Base::*;
+
+Class products::FX::FxDerivative extends Product
+{
+  exchangedCurrency1 : Money[1];
+  exchangedCurrency2 : Money[1];
+  valueDate : Date[1];
+}
+
+Class products::FX::FxSpot extends FxDerivative
+{
+}
+
+Class products::FX::FxForward extends FxDerivative
+{
+}
+
+Class products::FX::NonDeliverableForward extends FxForward
+{
+  settlementCurrency : Currency[1];
+  fixingDate : Date[1];
+}
+
+Class products::FX::FxSwap extends Product
+{
+  nearLeg : FxSpot[1];
+  farLeg : FxForward[1];
+}
+
+Class products::FX::FxOption extends Product
+{
+  buyer : Party[1];
+  seller : Party[1];
+  putCurrencyAmount : Money[1];
+  callCurrencyAmount : Money[1];
+  strikeRate : Float[1];
+  exercise : Exercise[1];
+  premium : Money[1];
+}
+
+Class products::FX::FxBarrierOption extends FxOption
+{
+  barrierType : String[1]; // Knock-in, Knock-out
+  barrierLevel : Float[1];
+}
+
+Class products::FX::FxDigitalOption extends FxOption
+{
+  payout : Money[1]; // Fixed payout if triggered
+}
+
+Class products::FX::FxFlexibleForward extends FxForward
+{
+  executionPeriodStartDate : Date[1];
+  executionPeriodEndDate : Date[1];
+  // Buyer has right to exchange funds on any date within period
+}
+
+Class products::FX::FxVolatilitySwap extends Product
+{
+  volatilityStrike : Float[1];
+  vegaNotional : Money[1];
+  observationStartDate : Date[1];
+  observationEndDate : Date[1];
+  currencyPair : String[1]; // e.g. EUR/USD
+}
+
+Class products::FX::FxVarianceSwap extends Product
+{
+  varianceStrike : Float[1];
+  vegaNotional : Money[1];
+  observationStartDate : Date[1];
+  observationEndDate : Date[1];
+  currencyPair : String[1];
+}

@@ -1,0 +1,14 @@
+import products::Base::*;
+
+Class products::Hybrid::Strategy extends Product
+{
+  components : Product[*];
+  strategyType : String[0..1];
+}
+
+Class products::Hybrid::GenericProduct extends Product
+{
+  productName : String[1];
+  description : String[0..1];
+  // Placeholder for unstructured or semi-structured economics
+}

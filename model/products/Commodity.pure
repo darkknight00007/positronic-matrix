@@ -1,0 +1,39 @@
+import products::Base::*;
+
+Class products::Commodity::CommodityDerivative extends Product
+{
+  commodityType : String[1]; // Oil, Gold, Wheat
+  unit : String[1]; // Barrel, Ounce, Bushel
+}
+
+Class products::Commodity::CommoditySwap extends CommodityDerivative
+{
+  fixedLeg : products::IRD::FixedRateLeg[1]; // Often fixed price vs float
+  floatingLeg : products::Commodity::CommodityFloatingLeg[1];
+}
+
+Class products::Commodity::CommodityFloatingLeg extends Leg
+{
+  commodityPriceIndex : String[1];
+  spread : Float[0..1];
+}
+
+Class products::Commodity::CommodityForward extends CommodityDerivative
+{
+  buyer : Party[1];
+  seller : Party[1];
+  quantity : Float[1];
+  fixedPrice : Money[1];
+  deliveryDate : Date[1];
+}
+
+Class products::Commodity::CommodityOption extends CommodityDerivative
+{
+  buyer : Party[1];
+  seller : Party[1];
+  quantity : Float[1];
+  strikePrice : Money[1];
+  exercise : Exercise[1];
+  premium : Money[1];
+  optionType : String[1];
+}

@@ -1,0 +1,26 @@
+import products::Base::*;
+import products::Lifecycle::*;
+
+Class transforms::Settlement::SettlementInstruction
+{
+  instructionId : String[1];
+  tradeId : String[1];
+  settlementDate : Date[1];
+  amount : Money[1];
+  payerAccount : String[1];
+  receiverAccount : String[1];
+  status : String[1];
+}
+
+function transforms::Settlement::generateSettlementInstruction(trade: Product[1], paymentDate: Date[1], amount: Money[1]): transforms::Settlement::SettlementInstruction[1]
+{
+  ^transforms::Settlement::SettlementInstruction(
+    instructionId = 'SETT-' + $trade.id,
+    tradeId = $trade.id,
+    settlementDate = $paymentDate,
+    amount = $amount,
+    payerAccount = 'ACC-PAYER',
+    receiverAccount = 'ACC-RECEIVER',
+    status = 'Pending'
+  )
+}

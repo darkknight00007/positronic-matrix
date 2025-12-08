@@ -1,0 +1,89 @@
+import products::Base::*;
+
+Class products::IRD::InterestRateDerivative extends Product
+{
+}
+
+Class products::IRD::InterestRateSwap extends InterestRateDerivative
+{
+  legs : products::IRD::SwapLeg[*];
+}
+
+Class products::IRD::SwapLeg extends Leg
+{
+  calculationConfig : products::IRD::CalculationConfiguration[1];
+}
+
+Class products::IRD::CalculationConfiguration
+{
+  notional : Money[1];
+  // Simplification for FpML complexity
+}
+
+Class products::IRD::FixedRateLeg extends SwapLeg
+{
+  fixedRate : Float[1];
+}
+
+Class products::IRD::FloatingRateLeg extends SwapLeg
+{
+  floatingRateIndex : String[1];
+  spread : Float[0..1];
+}
+
+Class products::IRD::Swaption extends InterestRateDerivative
+{
+  premium : Money[1];
+  optionType : String[1]; // Payer, Receiver
+  exercise : Exercise[1];
+  underlyingSwap : InterestRateSwap[1];
+}
+
+Class products::IRD::Fra extends InterestRateDerivative
+{
+  buyer : Party[1];
+  seller : Party[1];
+  notional : Money[1];
+  fixedRate : Float[1];
+  forwardRateIndex : String[1];
+}
+
+Class products::IRD::CapFloor extends InterestRateDerivative
+{
+  capFloorLeg : products::IRD::FloatingRateLeg[1];
+  strikeRate : Float[1];
+  isCap : Boolean[1]; // True for Cap, False for Floor
+}
+
+Class products::IRD::BulletPayment extends InterestRateDerivative
+{
+  payment : Money[1];
+  paymentDate : Date[1];
+}
+
+Class products::IRD::InflationSwap extends InterestRateDerivative
+{
+  fixedLeg : products::IRD::FixedRateLeg[1];
+  inflationLeg : products::IRD::InflationLeg[1];
+}
+
+Class products::IRD::InflationLeg extends SwapLeg
+{
+  inflationIndex : String[1]; // e.g. CPI, UK RPI
+  baseCPI : Float[1];
+  indexTenor : String[0..1];
+}
+
+Class products::IRD::AssetSwap extends InterestRateDerivative
+{
+  underlyingAsset : products::Base::Product[1]; // Usually a bond
+  assetSwapSpread : Float[1];
+  payLeg : products::IRD::SwapLeg[1];
+  receiveLeg : products::IRD::SwapLeg[1];
+}
+
+Class products::IRD::CrossCurrencySwap extends InterestRateDerivative
+{
+  legs : products::IRD::SwapLeg[*];
+  // Validation: legs must have different currencies
+}

@@ -1,0 +1,69 @@
+import products::Base::*;
+import products::Bond::*;
+
+Class products::Repo::SecuritiesFinancing extends Product
+{
+  buyer : Party[1];
+  seller : Party[1];
+  collateral : products::Repo::Collateral[*];
+}
+
+Class products::Repo::Collateral
+{
+  security : BondProduct[1];
+  quantity : Float[1];
+  haircut : Float[0..1]; // Margin percentage
+}
+
+Class products::Repo::Repo extends SecuritiesFinancing
+{
+  purchaseDate : Date[1];
+  repurchaseDate : Date[1];
+  purchasePrice : Money[1];
+  repurchasePrice : Money[1];
+  repoRate : Float[1];
+}
+
+Class products::Repo::ReverseRepo extends SecuritiesFinancing
+{
+  // Reverse of Repo from the buyer's perspective
+  purchaseDate : Date[1];
+  repurchaseDate : Date[1];
+  purchasePrice : Money[1];
+  repurchasePrice : Money[1];
+}
+
+Class products::Repo::BuySellBack extends SecuritiesFinancing
+{
+  sellDate : Date[1];
+  buyBackDate : Date[1];
+  sellPrice : Money[1];
+  buyBackPrice : Money[1];
+}
+
+Class products::Repo::SecuritiesLending extends SecuritiesFinancing
+{
+  loanStartDate : Date[1];
+  loanEndDate : Date[0..1]; // Open-ended possible
+  lendingFee : Float[1];
+  cash : Money[0..1]; // Cash collateral if applicable
+}
+
+Class products::Repo::TermDeposit extends Product
+{
+  principal : Money[1];
+  interestRate : Float[1];
+  startDate : Date[1];
+  maturityDate : Date[1];
+  paymentFrequency : String[0..1];
+}
+
+Class products::Repo::TriPartyRepo extends Repo
+{
+  triPartyAgent : Party[1];
+  collateralProfile : String[1]; // Description of eligible collateral
+}
+
+// Enhancing SecuritiesFinancing to have clear leg structure if needed, 
+// but keeping existing simple structure for compatibility unless directed otherwise.
+

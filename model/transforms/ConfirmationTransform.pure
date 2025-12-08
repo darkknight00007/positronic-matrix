@@ -1,0 +1,28 @@
+import products::Base::*;
+import products::Lifecycle::*;
+
+Class transforms::Confirmation::ConfirmationMessage
+{
+  messageId : String[1];
+  tradeId : String[1];
+  tradeDate : Date[1];
+  productType : String[1];
+  primaryAssetClass : String[1];
+  buyer : Party[1];
+  seller : Party[1];
+  economics : String[1]; // Serialized details for simplicity
+}
+
+function transforms::Confirmation::transformToConfirmation(trade: Product[1]): transforms::Confirmation::ConfirmationMessage[1]
+{
+  ^transforms::Confirmation::ConfirmationMessage(
+    messageId = 'CONF-' + $trade.id,
+    tradeId = $trade.id,
+    tradeDate = %2023-01-01, // Placeholder
+    productType = 'GenericProduct',
+    primaryAssetClass = 'Unknown',
+    buyer = $trade.parties->at(0),
+    seller = $trade.parties->at(1),
+    economics = 'Details...'
+  )
+}

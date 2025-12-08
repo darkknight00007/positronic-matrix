@@ -1,0 +1,37 @@
+import products::Base::*;
+
+Class functions::AssetServicing::CollateralManagement
+{
+  agreementId : String[1];
+  eligibleCollateral : String[*];
+  independentAmount : Money[0..1];
+  threshold : Money[0..1];
+  minimumTransferAmount : Money[0..1];
+}
+
+Class functions::AssetServicing::MarginCall
+{
+  callId : String[1];
+  callDate : Date[1];
+  callAmount : Money[1];
+  status : String[1]; // Issued, Disputed, Agreed, Settled
+}
+
+Class functions::AssetServicing::CorporateAction
+{
+  actionType : String[1]; // Dividend, Split, Merit
+  exDate : Date[1];
+  recordDate : Date[1];
+  paymentDate : Date[1];
+}
+
+function functions::AssetServicing::processMarginCall(agreement: functions::AssetServicing::CollateralManagement[1], exposing: Float[1]): functions::AssetServicing::MarginCall[1]
+{
+  // Logic to determine if exposure exceeds threshold + MTA
+  ^functions::AssetServicing::MarginCall(
+     callId = 'MC-12345',
+     callDate = %2023-01-01,
+     callAmount = ^Money(amount=exposing, currency=^Currency(code='USD')),
+     status = 'Issued'
+  )
+}

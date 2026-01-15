@@ -224,7 +224,7 @@ class TradeProcessingWorkflow:
 if __name__ == "__main__":
     import asyncio
     
-    workflow = TradeProcessingWorkflow(project_id="your-gcp-project")
+    workflow = TradeProcessingWorkflow(project_id="nextgen3")
     
     sample_trade = {
         "id": "TRD-12345",

@@ -40,7 +40,7 @@ class TradeRequest(BaseModel):
 async def startup_event():
     global workflow
     # Initialize workflow with your GCP project
-    workflow = TradeProcessingWorkflow(project_id="your-gcp-project-id")
+    workflow = TradeProcessingWorkflow(project_id="nextgen3")
 
 @app.post("/workflow/execute")
 async def execute_workflow(trade: TradeRequest):

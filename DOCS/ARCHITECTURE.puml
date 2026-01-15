@@ -1,0 +1,109 @@
+@startuml PositronicMatrixArchitecture
+skinparam linetype ortho
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+' Professional Theme
+skinparam backgroundColor white
+skinparam component {
+    BackgroundColor white
+    BorderColor #2C3E50
+    ArrowColor #2C3E50
+    FontName Helvetica
+    FontSize 12
+    BorderThickness 1.5
+}
+skinparam package {
+    BackgroundColor #F8F9F9
+    BorderColor #95A5A6
+    FontName Helvetica
+    FontSize 13
+    FontStyle Bold
+}
+skinparam actor {
+    BackgroundColor white
+    BorderColor #2C3E50
+}
+skinparam note {
+    BackgroundColor #FEF9E7
+    BorderColor #F1C40F
+}
+
+title Positronic Matrix - Target State Architecture
+
+actor "Financial Operations User" as User
+
+package "User Interface" {
+    component "AI Canvas" as Canvas
+    component "Analytics Dashboard" as Dashboard
+}
+
+package "Orchestration & Control" {
+    component "Control Plane" as ControlPlane
+    component "LangGraph Workflow Engine" as LangGraph
+}
+
+package "AI Agent Mesh" {
+    component "Regulatory Agent" as RegAgent
+    component "Trade Processing Agent" as TradeAgent
+    component "Settlement Agent" as SettleAgent
+    component "Confirmation Agent" as ConfirmAgent
+    component "Margin Agent" as MarginAgent
+    component "Ledger Agent" as LedgerAgent
+    component "Risk Management Agent" as RiskAgent
+    component "Derivatives Agent" as DerivAgent
+    component "Commodities Agent" as CommAgent
+}
+
+package "Infrastructure" {
+    component "Vertex AI Platform" as Vertex
+    component "External Data Sources" as ExtData
+}
+
+package "Data & Integration Layer" {
+    component "FINOS Legend Pure Models" as Legend
+    component "FpML 5.x Standards" as FpML
+}
+
+' Relationships
+User --> Canvas
+User --> Dashboard
+Canvas --> ControlPlane : Deploys
+ControlPlane --> LangGraph : Executes
+
+' Orchestration Flows
+LangGraph --> RegAgent
+LangGraph --> TradeAgent
+LangGraph --> SettleAgent
+LangGraph --> ConfirmAgent
+LangGraph --> MarginAgent
+LangGraph --> LedgerAgent
+LangGraph --> RiskAgent
+LangGraph --> DerivAgent
+LangGraph --> CommAgent
+
+' Agent Dependencies
+RegAgent ..> Vertex
+TradeAgent ..> Vertex
+SettleAgent ..> Vertex
+RiskAgent ..> Vertex
+DerivAgent ..> Vertex
+CommAgent ..> Vertex
+
+' Data & Model Dependencies
+RegAgent --> Legend
+TradeAgent --> FpML
+TradeAgent --> Legend
+SettleAgent --> Legend
+DerivAgent --> FpML
+CommAgent --> FpML
+RiskAgent ..> ExtData
+Dashboard ..> ControlPlane : Metrics
+
+note top of ControlPlane
+    Central orchestration of all
+    autonomous agent workflows
+end note
+
+@enduml

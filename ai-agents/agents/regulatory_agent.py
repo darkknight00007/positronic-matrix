@@ -239,7 +239,7 @@ class RegulatoryAgent:
 if __name__ == "__main__":
     import asyncio
     
-    agent = RegulatoryAgent(project_id="your-gcp-project")
+    agent = RegulatoryAgent(project_id="nextgen3")
     
     sample_trade = {
         "product_type": "InterestRateSwap",

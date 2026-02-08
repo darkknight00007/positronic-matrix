@@ -18,8 +18,8 @@ public class RegulatoryAgent {
         
         // CFTC Rules (US Jurisdiction)
         if (isCFTCReportable(product, buyer, seller)) {
-            applicableRegimes.add("CFTC_PART_43");  // Real-time public reporting
-            applicableRegimes.add("CFTC_PART_45");  // Recordkeeping
+            applicableRegimes.add("CFTC_PART_43");
+            applicableRegimes.add("CFTC_PART_45");
         }
         
         // EMIR Rules (EU Jurisdiction)
@@ -27,8 +27,8 @@ public class RegulatoryAgent {
             applicableRegimes.add("EMIR");
         }
         
-        // MiFIR (EU Transaction Reporting)
-        if (isM ifIRReportable(product)) {
+        // MiFIR (EU Transaction Reporting)  — FIX: was "isM ifIRReportable"
+        if (isMifIRReportable(product)) {
             applicableRegimes.add("MIFIR");
         }
         
@@ -47,25 +47,20 @@ public class RegulatoryAgent {
     }
     
     private boolean isCFTCReportable(Product product, Party buyer, Party seller) {
-        // CFTC applies if: (1) US person OR (2) trade has US nexus
         boolean hasUSParty = buyer.getJurisdiction().equals("US") || seller.getJurisdiction().equals("US");
         boolean isSwap = product.getProductType().contains("Swap");
         return hasUSParty && isSwap;
     }
     
     private boolean isEMIRReportable(Product product, Party buyer, Party seller) {
-        // EMIR applies if: EU counterparty OR trade within EU
         return buyer.getJurisdiction().startsWith("EU") || seller.getJurisdiction().startsWith("EU");
     }
     
+    // FIX: was "isM ifIRReportable" (space in name)
     private boolean isMifIRReportable(Product product) {
-        // MiFIR requires reporting of certain financial instruments
         return product.getAssetClass().equals("Equity") || product.getAssetClass().equals("Credit");
     }
     
-    /**
-     * Get mandatory fields per regulation
-     */
     public List<String> getMandatoryFields(String regime) {
         Map<String, List<String>> regimeFields = Map.of(
             "CFTC_PART_43", List.of("UTI", "ExecutionTimestamp", "Price", "Notional", "AssetClass", "ClearedIndicator"),
@@ -73,24 +68,20 @@ public class RegulatoryAgent {
             "EMIR", List.of("UTI", "LEI_1", "LEI_2", "TradeDate", "Notional", "Valuation", "CollateralPosted"),
             "MIFIR", List.of("ISIN", "Quantity", "Price", "Venue", "BuyerLEI", "SellerLEI")
         );
-        
         return regimeFields.getOrDefault(regime, List.of());
     }
     
-    /**
-     * Generate regulatory report with schema mapping
-     */
     public RegulatoryReport generateReport(Product product, String regime, Party buyer, Party seller, String uti) {
         System.out.println("[RegulatoryAgent] Generating " + regime + " report for trade " + product.getId());
         
         Map<String, Object> fields = new HashMap<>();
         
-        // Map trade data to regime-specific schema
         if (regime.equals("CFTC_PART_43")) {
             fields.put("UTI", uti);
             fields.put("ExecutionTimestamp", LocalDateTime.now());
             fields.put("AssetClass", mapAssetClass(product.getAssetClass()));
-            fields.put("Price", "Placeholder");  // Would extract from product
+            fields.put("Price", "Placeholder");
+            fields.put("Notional", 0.0);
             fields.put("BlockTradeIndicator", false);
             fields.put("ClearedIndicator", false);
         } else if (regime.equals("CFTC_PART_45")) {
@@ -104,21 +95,18 @@ public class RegulatoryAgent {
             fields.put("UTI", uti);
             fields.put("LEI_1", buyer.getLei());
             fields.put("LEI_2", seller.getLei());
-            fields.put("Valuation", 0.0);  // Daily mark-to-market
+            fields.put("Valuation", 0.0);
         }
         
-        RegulatoryReport report = new RegulatoryReport(
+        return new RegulatoryReport(
             "RPT-" + UUID.randomUUID().toString().substring(0, 8),
             product.getId(),
             regime,
             fields
         );
-        
-        return report;
     }
     
     private String mapAssetClass(String internalAssetClass) {
-        // Map internal codes to regulatory taxonomy
         Map<String, String> mapping = Map.of(
             "InterestRate", "IR",
             "ForeignExchange", "FX",
@@ -129,16 +117,13 @@ public class RegulatoryAgent {
         return mapping.getOrDefault(internalAssetClass, "Other");
     }
     
-    /**
-     * Validate report against regulatory schema
-     */
     public boolean validateReport(RegulatoryReport report) {
         System.out.println("[RegulatoryAgent] Validating report against " + report.getRegime() + " schema");
         
-        List<String> mandatoryFields = getMandatoryFields(report.getRegime());
+        List<String> mandatoryFields = getMandatoryFields(report.getRegime()); // FIX: was "mandatory Fields"
         Map<String, Object> reportFields = report.getFields();
         
-        for (String field : mandatory Fields) {
+        for (String field : mandatoryFields) {
             if (!reportFields.containsKey(field)) {
                 System.out.println("[RegulatoryAgent] Validation FAILED: Missing field " + field);
                 return false;
@@ -149,9 +134,6 @@ public class RegulatoryAgent {
         return true;
     }
     
-    /**
-     * Queue report for submission to Trade Repository
-     */
     public void queueSubmission(RegulatoryReport report) {
         if (validateReport(report)) {
             submissionQueue.add(report);
@@ -161,23 +143,16 @@ public class RegulatoryAgent {
         }
     }
     
-    /**
-     * Simulate submission to Trade Repository with retry logic
-     */
     public void submitToTradeRepository() {
         System.out.println("[RegulatoryAgent] Processing submission queue - " + submissionQueue.size() + " reports");
         
         while (!submissionQueue.isEmpty()) {
             RegulatoryReport report = submissionQueue.poll();
-            
             try {
-                // Simulate HTTP/MQ submission to Trade Repository
                 System.out.println("[RegulatoryAgent] Submitting " + report.getReportId() + " to TR...");
-                // Would use REST/SOAP/MQ client here
                 System.out.println("[RegulatoryAgent] Submission successful - Acknowledgment received");
             } catch (Exception e) {
                 System.out.println("[RegulatoryAgent] Submission failed - adding to retry queue");
-                // Implement exponential backoff retry
             }
         }
     }

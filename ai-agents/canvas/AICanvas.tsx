@@ -24,7 +24,7 @@ interface AgentStatus {
 }
 
 const AgentNode = ({ data }: { data: any }) => {
-    const statusColors = {
+    const statusColors: Record<string, string> = {
         pending: '#9CA3AF',
         running: '#F59E0B',
         complete: '#10B981',
@@ -57,7 +57,8 @@ const nodeTypes = {
 };
 
 export const AICanvas: React.FC = () => {
-    const [agents Status, setAgentsStatus] = useState<Record<string, AgentStatus>>({
+    // FIX: was "agents Status" (space in variable name)
+    const [agentsStatus, setAgentsStatus] = useState<Record<string, AgentStatus>>({
         trading: { name: 'Trading Agent', status: 'pending' },
         processing: { name: 'Processing Agent', status: 'pending' },
         regulatory: { name: 'Regulatory Agent', status: 'pending' },
@@ -69,7 +70,6 @@ export const AICanvas: React.FC = () => {
 
     const [workflowData, setWorkflowData] = useState<any>(null);
 
-    // Define workflow graph nodes
     const initialNodes: Node[] = [
         {
             id: 'trading',
@@ -127,14 +127,12 @@ export const AICanvas: React.FC = () => {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-    // Connect to workflow backend via WebSocket
     useEffect(() => {
         const ws = new WebSocket('ws://localhost:8000/workflow/stream');
 
         ws.onmessage = (event) => {
             const update = JSON.parse(event.data);
 
-            // Update agent status
             if (update.agent && update.status) {
                 setAgentsStatus(prev => ({
                     ...prev,
@@ -147,7 +145,6 @@ export const AICanvas: React.FC = () => {
                 }));
             }
 
-            // Update workflow data
             if (update.workflow_state) {
                 setWorkflowData(update.workflow_state);
             }
@@ -156,7 +153,6 @@ export const AICanvas: React.FC = () => {
         return () => ws.close();
     }, []);
 
-    // Update nodes when agent status changes
     useEffect(() => {
         setNodes(nodes =>
             nodes.map(node => ({
@@ -188,13 +184,11 @@ export const AICanvas: React.FC = () => {
 
     return (
         <div className="h-screen w-full flex flex-col">
-            {/* Header */}
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 shadow-lg">
                 <h1 className="text-2xl font-bold">AI Multi-Agent Canvas</h1>
                 <p className="text-sm opacity-90">Real-time OTC Derivatives Processing Workflow</p>
             </div>
 
-            {/* Control Panel */}
             <div className="bg-gray-100 p-4 flex space-x-4 items-center">
                 <button
                     onClick={startWorkflow}
@@ -217,7 +211,6 @@ export const AICanvas: React.FC = () => {
                 </div>
             </div>
 
-            {/* Canvas */}
             <div className="flex-1 relative">
                 <ReactFlow
                     nodes={nodes}
@@ -232,7 +225,6 @@ export const AICanvas: React.FC = () => {
                 </ReactFlow>
             </div>
 
-            {/* Status Panel */}
             <div className="bg-gray-50 border-t p-4 max-h-48 overflow-y-auto">
                 <h3 className="font-bold mb-2">Workflow State</h3>
                 {workflowData && (

@@ -61,6 +61,7 @@ class TradeProcessingWorkflow:
         # Add nodes (each is an AI agent)
         workflow.add_node("trading", self._trading_agent_node)
         workflow.add_node("processing", self._processing_agent_node)
+        workflow.add_node("parallel_agents", self._parallel_agents_node)
         workflow.add_node("regulatory", self._regulatory_agent_node)
         workflow.add_node("confirmation", self._confirmation_agent_node)
         workflow.add_node("settlement", self._settlement_agent_node)
@@ -75,10 +76,17 @@ class TradeProcessingWorkflow:
             "processing",
             self._should_proceed_to_functional_agents,
             {
-                "proceed": ["regulatory", "confirmation", "settlement", "ledger", "margin"],
+                "proceed": "parallel_agents",
                 "reject": END
             }
         )
+        
+        # Parallel agents node fans out to all functional agents
+        workflow.add_edge("parallel_agents", "regulatory")
+        workflow.add_edge("parallel_agents", "confirmation")
+        workflow.add_edge("parallel_agents", "settlement")
+        workflow.add_edge("parallel_agents", "ledger")
+        workflow.add_edge("parallel_agents", "margin")
         
         # All functional agents converge to END
         for agent in ["regulatory", "confirmation", "settlement", "ledger", "margin"]:
@@ -118,6 +126,12 @@ class TradeProcessingWorkflow:
         state["completed_agents"].append("processing")
         state["current_step"] = "processing_complete"
         
+        return state
+    
+    async def _parallel_agents_node(self, state: TradeWorkflowState) -> TradeWorkflowState:
+        """Fan-out node to trigger all functional agents in parallel"""
+        print(f"[Workflow] Fanning out to functional agents for trade {state['trade_id']}")
+        state["current_step"] = "parallel_execution"
         return state
     
     async def _regulatory_agent_node(self, state: TradeWorkflowState) -> TradeWorkflowState:
